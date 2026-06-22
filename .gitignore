@@ -1,4 +1,26 @@
-/results/
-/system/models
-*__pycache__*
-/dataset/
+# Ambientes virtuais
+.venv/
+.env/
+
+# Dados e Resultados
+*.csv
+*.zip
+*.h5
+*.npz
+dataset/MNIST/rawdata/
+dataset/MNIST/test/
+dataset/MNIST/train/
+dataset/MNIST/train_mal/
+
+# Cache do Python (as pastas __pycache__ que apareceram no seu tree)
+__pycache__/
+*.pyc
+
+
+# Ignorar os datasets gerados pelo LEAF (Resolve o problema de arquivos gigantes)
+dataset/utils/LEAF/data/
+
+# Ignorar dados do Cifar10 (Seguindo o mesmo padrão do MNIST)
+dataset/Cifar10/rawdata/
+dataset/Cifar10/test/
+dataset/Cifar10/train/
