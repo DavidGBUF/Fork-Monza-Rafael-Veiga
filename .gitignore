@@ -7,6 +7,11 @@
 *.zip
 *.h5
 *.npz
+
+# Exceções: Permitir os dados do MNIST subirem (sobrepõe a regra do *.npz acima)
+!dataset/MNIST/train/*.npz
+!dataset/MNIST/test/*.npz
+
 # Mantemos o train_mal ignorado caso seja lixo de teste de envenenamento
 dataset/MNIST/train_mal/ 
 
