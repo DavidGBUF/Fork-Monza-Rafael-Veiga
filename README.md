@@ -14,23 +14,26 @@ Figure 1: An Example for FedAvg. You can create a scenario using `generate_DATA.
 
 🎯**If you find our repository useful, please cite the corresponding paper:**
 
+
 ```
+
 @article{zhang2025pfllib,
-  title={PFLlib: A Beginner-Friendly and Comprehensive Personalized Federated Learning Library and Benchmark},
-  author={Zhang, Jianqing and Liu, Yang and Hua, Yang and Wang, Hao and Song, Tao and Xue, Zhengui and Ma, Ruhui and Cao, Jian},
-  journal={Journal of Machine Learning Research},
-  volume={26},
-  number={50},
-  pages={1--10},
-  year={2025}
+title={PFLlib: A Beginner-Friendly and Comprehensive Personalized Federated Learning Library and Benchmark},
+author={Zhang, Jianqing and Liu, Yang and Hua, Yang and Wang, Hao and Song, Tao and Xue, Zhengui and Ma, Ruhui and Cao, Jian},
+journal={Journal of Machine Learning Research},
+volume={26},
+number={50},
+pages={1--10},
+year={2025}
 }
 
 @inproceedings{Zhang2025htfllib,
-  author={Zhang, Jianqing and Wu, Xinghao and Zhou, Yanbing and Sun, Xiaoting and Cai, Qiqi and Liu, Yang and Hua, Yang and Zheng, Zhenzhe and Cao, Jian and Yang, Qiang},
-  title = {HtFLlib: A Comprehensive Heterogeneous Federated Learning Library and Benchmark},
-  year = {2025},
-  booktitle = {Proceedings of the 31st ACM SIGKDD Conference on Knowledge Discovery and Data Mining}
+author={Zhang, Jianqing and Wu, Xinghao and Zhou, Yanbing and Sun, Xiaoting and Cai, Qiqi and Liu, Yang and Hua, Yang and Zheng, Zhenzhe and Cao, Jian and Yang, Qiang},
+title = {HtFLlib: A Comprehensive Heterogeneous Federated Learning Library and Benchmark},
+year = {2025},
+booktitle = {Proceedings of the 31st ACM SIGKDD Conference on Knowledge Discovery and Data Mining}
 }
+
 ```
 ### Key Features
 
@@ -105,14 +108,11 @@ The origin of the **data heterogeneity** phenomenon is the characteristics of us
 
   ***Personalized-aggregation-based pFL***
 
-- **APFL** — [Adaptive Personalized Federated Learning](https://arxiv.org/abs/2003.13461) *2020* 
-- **FedFomo** — [Personalized Federated Learning with First Order Model Optimization](https://openreview.net/forum?id=ehJqJQk9cw) *ICLR 2021*
+- **APFL** — [Adaptive Personalized Federated Learning](https://arxiv.org/abs/2003.13461) *2020* - **FedFomo** — [Personalized Federated Learning with First Order Model Optimization](https://openreview.net/forum?id=ehJqJQk9cw) *ICLR 2021*
 - **FedAMP** — [Personalized Cross-Silo Federated Learning on non-IID Data](https://ojs.aaai.org/index.php/AAAI/article/view/16960) *AAAI 2021*
 - **FedPHP** — [FedPHP: Federated Personalization with Inherited Private Models](https://link.springer.com/chapter/10.1007/978-3-030-86486-6_36) *ECML PKDD 2021*
 - **APPLE** — [Adapt to Adaptation: Learning Personalization for Cross-Silo Federated Learning](https://www.ijcai.org/proceedings/2022/301) *IJCAI 2022*
-- **FedALA** — [FedALA: Adaptive Local Aggregation for Personalized Federated Learning](https://ojs.aaai.org/index.php/AAAI/article/view/26330) *AAAI 2023* 
-
-  ***Model-splitting-based pFL***
+- **FedALA** — [FedALA: Adaptive Local Aggregation for Personalized Federated Learning](https://ojs.aaai.org/index.php/AAAI/article/view/26330) *AAAI 2023* ***Model-splitting-based pFL***
 
 - **FedPer** — [Federated Learning with Personalization Layers](https://arxiv.org/abs/1912.00818) *2019*
 - **LG-FedAvg** — [Think Locally, Act Globally: Federated Learning with Local and Global Representations](https://arxiv.org/abs/2001.01523) *2020*
@@ -134,8 +134,7 @@ The origin of the **data heterogeneity** phenomenon is the characteristics of us
 - **FML** — [Federated Mutual Learning](https://arxiv.org/abs/2006.16765) *2020*
 - **FedKD** — [Communication-efficient federated learning via knowledge distillation](https://www.nature.com/articles/s41467-022-29763-x) *Nature Communications 2022*
 - **FedProto** — [FedProto: Federated Prototype Learning across Heterogeneous Clients](https://ojs.aaai.org/index.php/AAAI/article/view/20819) *AAAI 2022*
-- **FedPCL (w/o pre-trained models)** — [Federated learning from pre-trained models: A contrastive learning approach](https://proceedings.neurips.cc/paper_files/paper/2022/file/7aa320d2b4b8f6400b18f6f77b6c1535-Paper-Conference.pdf) *NeurIPS 2022* 
-- **FedPAC** — [Personalized Federated Learning with Feature Alignment and Classifier Collaboration](https://openreview.net/pdf?id=SXZr8aDKia) *ICLR 2023*
+- **FedPCL (w/o pre-trained models)** — [Federated learning from pre-trained models: A contrastive learning approach](https://proceedings.neurips.cc/paper_files/paper/2022/file/7aa320d2b4b8f6400b18f6f77b6c1535-Paper-Conference.pdf) *NeurIPS 2022* - **FedPAC** — [Personalized Federated Learning with Feature Alignment and Classifier Collaboration](https://openreview.net/pdf?id=SXZr8aDKia) *ICLR 2023*
 
   ***Other pFL***
 
@@ -203,9 +202,11 @@ python generate_MNIST.py iid balance - # for iid and balanced scenario
 python generate_MNIST.py noniid - pat # for pathological noniid and unbalanced scenario
 python generate_MNIST.py noniid - dir # for practical noniid and unbalanced scenario
 python generate_MNIST.py noniid - exdir # for Extended Dirichlet strategy 
+
 ```
 
 The command line output of running `python generate_MNIST.py noniid - dir`
+
 ```bash
 Number of classes: 10
 Client 0         Size of data: 2630      Labels:  [0 1 4 5 7 8 9]
@@ -217,223 +218,247 @@ Client 1         Size of data: 499       Labels:  [0 2 5 6 8 9]
 Client 2         Size of data: 1630      Labels:  [0 3 6 9]
                  Samples of labels:  [(0, 3), (3, 143), (6, 1461), (9, 23)]
 --------------------------------------------------
+
 ```
-<details>
-    <summary>Show more</summary>
 
-    Client 3         Size of data: 2541      Labels:  [0 4 7 8]
-                     Samples of labels:  [(0, 155), (4, 1), (7, 2381), (8, 4)]
-    --------------------------------------------------
-    Client 4         Size of data: 1917      Labels:  [0 1 3 5 6 8 9]
-                     Samples of labels:  [(0, 71), (1, 13), (3, 207), (5, 1129), (6, 6), (8, 40), (9, 451)]
-    --------------------------------------------------
-    Client 5         Size of data: 6189      Labels:  [1 3 4 8 9]
-                     Samples of labels:  [(1, 38), (3, 1), (4, 39), (8, 25), (9, 6086)]
-    --------------------------------------------------
-    Client 6         Size of data: 1256      Labels:  [1 2 3 6 8 9]
-                     Samples of labels:  [(1, 873), (2, 176), (3, 46), (6, 42), (8, 13), (9, 106)]
-    --------------------------------------------------
-    Client 7         Size of data: 1269      Labels:  [1 2 3 5 7 8]
-                     Samples of labels:  [(1, 21), (2, 5), (3, 11), (5, 787), (7, 4), (8, 441)]
-    --------------------------------------------------
-    Client 8         Size of data: 3600      Labels:  [0 1]
-                     Samples of labels:  [(0, 1), (1, 3599)]
-    --------------------------------------------------
-    Client 9         Size of data: 4006      Labels:  [0 1 2 4 6]
-                     Samples of labels:  [(0, 633), (1, 1997), (2, 89), (4, 519), (6, 768)]
-    --------------------------------------------------
-    Client 10        Size of data: 3116      Labels:  [0 1 2 3 4 5]
-                     Samples of labels:  [(0, 920), (1, 2), (2, 1450), (3, 513), (4, 134), (5, 97)]
-    --------------------------------------------------
-    Client 11        Size of data: 3772      Labels:  [2 3 5]
-                     Samples of labels:  [(2, 159), (3, 3055), (5, 558)]
-    --------------------------------------------------
-    Client 12        Size of data: 3613      Labels:  [0 1 2 5]
-                     Samples of labels:  [(0, 8), (1, 180), (2, 3277), (5, 148)]
-    --------------------------------------------------
-    Client 13        Size of data: 2134      Labels:  [1 2 4 5 7]
-                     Samples of labels:  [(1, 237), (2, 343), (4, 6), (5, 453), (7, 1095)]
-    --------------------------------------------------
-    Client 14        Size of data: 5730      Labels:  [5 7]
-                     Samples of labels:  [(5, 2719), (7, 3011)]
-    --------------------------------------------------
-    Client 15        Size of data: 5448      Labels:  [0 3 5 6 7 8]
-                     Samples of labels:  [(0, 31), (3, 1785), (5, 16), (6, 4), (7, 756), (8, 2856)]
-    --------------------------------------------------
-    Client 16        Size of data: 3628      Labels:  [0]
-                     Samples of labels:  [(0, 3628)]
-    --------------------------------------------------
-    Client 17        Size of data: 5653      Labels:  [1 2 3 4 5 7 8]
-                     Samples of labels:  [(1, 26), (2, 1463), (3, 1379), (4, 335), (5, 60), (7, 17), (8, 2373)]
-    --------------------------------------------------
-    Client 18        Size of data: 5266      Labels:  [0 5 6]
-                     Samples of labels:  [(0, 998), (5, 8), (6, 4260)]
-    --------------------------------------------------
-    Client 19        Size of data: 6103      Labels:  [0 1 2 3 4 9]
-                     Samples of labels:  [(0, 310), (1, 1), (2, 1), (3, 1), (4, 5789), (9, 1)]
-    --------------------------------------------------
-    Total number of samples: 70000
-    The number of train samples: [1972, 374, 1222, 1905, 1437, 4641, 942, 951, 2700, 3004, 2337, 2829, 2709, 1600, 4297, 4086, 2721, 4239, 3949, 4577]
-    The number of test samples: [658, 125, 408, 636, 480, 1548, 314, 318, 900, 1002, 779, 943, 904, 534, 1433, 1362, 907, 1414, 1317, 1526]
+```
+Client 3         Size of data: 2541      Labels:  [0 4 7 8]
+                 Samples of labels:  [(0, 155), (4, 1), (7, 2381), (8, 4)]
+--------------------------------------------------
+Client 4         Size of data: 1917      Labels:  [0 1 3 5 6 8 9]
+                 Samples of labels:  [(0, 71), (1, 13), (3, 207), (5, 1129), (6, 6), (8, 40), (9, 451)]
+--------------------------------------------------
+Client 5         Size of data: 6189      Labels:  [1 3 4 8 9]
+                 Samples of labels:  [(1, 38), (3, 1), (4, 39), (8, 25), (9, 6086)]
+--------------------------------------------------
+Client 6         Size of data: 1256      Labels:  [1 2 3 6 8 9]
+                 Samples of labels:  [(1, 873), (2, 176), (3, 46), (6, 42), (8, 13), (9, 106)]
+--------------------------------------------------
+Client 7         Size of data: 1269      Labels:  [1 2 3 5 7 8]
+                 Samples of labels:  [(1, 21), (2, 5), (3, 11), (5, 787), (7, 4), (8, 441)]
+--------------------------------------------------
+Client 8         Size of data: 3600      Labels:  [0 1]
+                 Samples of labels:  [(0, 1), (1, 3599)]
+--------------------------------------------------
+Client 9         Size of data: 4006      Labels:  [0 1 2 4 6]
+                 Samples of labels:  [(0, 633), (1, 1997), (2, 89), (4, 519), (6, 768)]
+--------------------------------------------------
+Client 10        Size of data: 3116      Labels:  [0 1 2 3 4 5]
+                 Samples of labels:  [(0, 920), (1, 2), (2, 1450), (3, 513), (4, 134), (5, 97)]
+--------------------------------------------------
+Client 11        Size of data: 3772      Labels:  [2 3 5]
+                 Samples of labels:  [(2, 159), (3, 3055), (5, 558)]
+--------------------------------------------------
+Client 12        Size of data: 3613      Labels:  [0 1 2 5]
+                 Samples of labels:  [(0, 8), (1, 180), (2, 3277), (5, 148)]
+--------------------------------------------------
+Client 13        Size of data: 2134      Labels:  [1 2 4 5 7]
+                 Samples of labels:  [(1, 237), (2, 343), (4, 6), (5, 453), (7, 1095)]
+--------------------------------------------------
+Client 14        Size of data: 5730      Labels:  [5 7]
+                 Samples of labels:  [(5, 2719), (7, 3011)]
+--------------------------------------------------
+Client 15        Size of data: 5448      Labels:  [0 3 5 6 7 8]
+                 Samples of labels:  [(0, 31), (3, 1785), (5, 16), (6, 4), (7, 756), (8, 2856)]
+--------------------------------------------------
+Client 16        Size of data: 3628      Labels:  [0]
+                 Samples of labels:  [(0, 3628)]
+--------------------------------------------------
+Client 17        Size of data: 5653      Labels:  [1 2 3 4 5 7 8]
+                 Samples of labels:  [(1, 26), (2, 1463), (3, 1379), (4, 335), (5, 60), (7, 17), (8, 2373)]
+--------------------------------------------------
+Client 18        Size of data: 5266      Labels:  [0 5 6]
+                 Samples of labels:  [(0, 998), (5, 8), (6, 4260)]
+--------------------------------------------------
+Client 19        Size of data: 6103      Labels:  [0 1 2 3 4 9]
+                 Samples of labels:  [(0, 310), (1, 1), (2, 1), (3, 1), (4, 5789), (9, 1)]
+--------------------------------------------------
+Total number of samples: 70000
+The number of train samples: [1972, 374, 1222, 1905, 1437, 4641, 942, 951, 2700, 3004, 2337, 2829, 2709, 1600, 4297, 4086, 2721, 4239, 3949, 4577]
+The number of test samples: [658, 125, 408, 636, 480, 1548, 314, 318, 900, 1002, 779, 943, 904, 534, 1433, 1362, 907, 1414, 1317, 1526]
 
-    Saving to disk.
+Saving to disk.
 
-    Finish generating dataset.
-</details>
+Finish generating dataset.
+
+```
 
 ## Models
-- for MNIST and Fashion-MNIST
 
-    1. Mclr_Logistic(1\*28\*28) # convex
-    2. LeNet()
-    3. DNN(1\*28\*28, 100)
+* for MNIST and Fashion-MNIST
+1. Mclr_Logistic(1*28*28) # convex
+2. LeNet()
+3. DNN(1*28*28, 100)
 
-- for Cifar10, Cifar100 and Tiny-ImageNet
 
-    1. Mclr_Logistic(3\*32\*32) # convex
-    2. FedAvgCNN()
-    3. DNN(3\*32\*32, 100)
-    4. ResNet18, AlexNet, MobileNet, GoogleNet, etc.
+* for Cifar10, Cifar100 and Tiny-ImageNet
+1. Mclr_Logistic(3*32*32) # convex
+2. FedAvgCNN()
+3. DNN(3*32*32, 100)
+4. ResNet18, AlexNet, MobileNet, GoogleNet, etc.
 
-- for AG_News and Sogou_News
 
-    - LSTM()
-    - fastText() in [Bag of Tricks for Efficient Text Classification](https://aclanthology.org/E17-2068/) 
-    - TextCNN() in [Convolutional Neural Networks for Sentence Classification](https://aclanthology.org/D14-1181/)
-    - TransformerModel() in [Attention is all you need](https://proceedings.neurips.cc/paper/2017/hash/3f5ee243547dee91fbd053c1c4a845aa-Abstract.html)
+* for AG_News and Sogou_News
+* LSTM()
+* fastText() in [Bag of Tricks for Efficient Text Classification](https://aclanthology.org/E17-2068/)
+* TextCNN() in [Convolutional Neural Networks for Sentence Classification](https://aclanthology.org/D14-1181/)
+* TransformerModel() in [Attention is all you need](https://proceedings.neurips.cc/paper/2017/hash/3f5ee243547dee91fbd053c1c4a845aa-Abstract.html)
 
-- for AmazonReview
 
-    - AmazonMLP() in [Curriculum manager for source selection in multi-source domain adaptation](https://link.springer.com/chapter/10.1007/978-3-030-58568-6_36)
+* for AmazonReview
+* AmazonMLP() in [Curriculum manager for source selection in multi-source domain adaptation](https://link.springer.com/chapter/10.1007/978-3-030-58568-6_36)
 
-- for Omniglot
 
-    - FedAvgCNN()
+* for Omniglot
+* FedAvgCNN()
 
-- for HAR and PAMAP
 
-    - HARCNN() in [Convolutional neural networks for human activity recognition using mobile sensors](https://eudl.eu/pdf/10.4108/icst.mobicase.2014.257786)
+* for HAR and PAMAP
+* HARCNN() in [Convolutional neural networks for human activity recognition using mobile sensors](https://eudl.eu/pdf/10.4108/icst.mobicase.2014.257786)
+
+
 
 ## Environments
-Install [CUDA](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html). 
 
-Install [conda latest](https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh) and activate conda. 
+Install [CUDA](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html).
 
-For additional configurations, refer to the `prepare.sh` script.  
+This project uses **[uv](https://www.google.com/search?q=https://docs.astral.sh/uv/)** for fast and modern Python dependency management.
+
+Install `uv` (if not already installed):
 
 ```bash
-conda env create -f env_cuda_latest.yaml  # Downgrade torch via pip if needed to match the CUDA version
+curl -LsSf [https://astral.sh/uv/install.sh](https://astral.sh/uv/install.sh) | sh
+
 ```
+
+Sync the environment and install dependencies:
+
+```bash
+uv sync
+
+```
+
+For additional configurations, refer to the `prepare.sh` script.
 
 ## How to start simulating (examples for FedAvg)
 
-- Download [this project](https://github.com/TsingZ0/PFLlib) to an appropriate location using [git](https://git-scm.com/).
-    ```bash
-    git clone https://github.com/TsingZ0/PFLlib.git
-    ```
+* Download [this project](https://github.com/TsingZ0/PFLlib) to an appropriate location using [git](https://git-scm.com/).
+```bash
+git clone [https://github.com/TsingZ0/PFLlib.git](https://github.com/TsingZ0/PFLlib.git)
 
-- Create proper environments (see [Environments](#environments)).
+```
 
-- Build evaluation scenarios (see [Datasets and scenarios (updating)](#datasets-and-scenarios-updating)).
 
-- Run evaluation: 
-    ```bash
-    cd ./system
-    python main.py -data MNIST -m CNN -algo FedAvg -gr 2000 -did 0 # using the MNIST dataset, the FedAvg algorithm, and the 4-layer CNN model
-    python main.py -data MNIST -m CNN -algo FedAvg -gr 2000 -did 0,1,2,3 # running on multiple GPUs
-    ```
+* Create proper environments (see [Environments](https://www.google.com/search?q=%23environments)).
+* Build evaluation scenarios (see [Datasets and scenarios (updating)](https://www.google.com/search?q=%23datasets-and-scenarios-updating)).
+* Run evaluation:
+```bash
+cd ./system
+uv run python main.py -data MNIST -m CNN -algo FedAvg -gr 2000 -did 0 # using the MNIST dataset, the FedAvg algorithm, and the 4-layer CNN model
+uv run python main.py -data MNIST -m CNN -algo FedAvg -gr 2000 -did 0,1,2,3 # running on multiple GPUs
 
-**Note**: It is preferable to tune algorithm-specific hyper-parameters before using any algorithm on a new machine. 
+```
+
+
+
+**Note**: It is preferable to tune algorithm-specific hyper-parameters before using any algorithm on a new machine.
 
 ## Easy to extend
 
 This library is designed to be easily extendable with new algorithms and datasets. Here’s how you can add them:
 
-- **New Dataset**: To add a new dataset, simply create a `generate_DATA.py` file in `./dataset` and then write the download code and use the [utils](https://github.com/TsingZ0/PFLlib/tree/master/dataset/utils) as shown in `./dataset/generate_MNIST.py` (you can consider it as a template):
-  ```python
-  # `generate_DATA.py`
-  import necessary pkgs
-  from utils import necessary processing funcs
+* **New Dataset**: To add a new dataset, simply create a `generate_DATA.py` file in `./dataset` and then write the download code and use the [utils](https://github.com/TsingZ0/PFLlib/tree/master/dataset/utils) as shown in `./dataset/generate_MNIST.py` (you can consider it as a template):
+```python
+# `generate_DATA.py`
+import necessary pkgs
+from utils import necessary processing funcs
 
-  def generate_dataset(...):
-    # download dataset as usual
-    # pre-process dataset as usual
-    X, y, statistic = separate_data((dataset_content, dataset_label), ...)
-    train_data, test_data = split_data(X, y)
-    save_file(config_path, train_path, test_path, train_data, test_data, statistic, ...)
+def generate_dataset(...):
+  # download dataset as usual
+  # pre-process dataset as usual
+  X, y, statistic = separate_data((dataset_content, dataset_label), ...)
+  train_data, test_data = split_data(X, y)
+  save_file(config_path, train_path, test_path, train_data, test_data, statistic, ...)
 
-  # call the generate_dataset func
-  ```
-  
-- **New Algorithm**: To add a new algorithm, extend the base classes **Server** and **Client**, which are defined in `./system/flcore/servers/serverbase.py` and `./system/flcore/clients/clientbase.py`, respectively.
-  - Server
-    ```python
-    # serverNAME.py
-    import necessary pkgs
-    from flcore.clients.clientNAME import clientNAME
-    from flcore.servers.serverbase import Server
+# call the generate_dataset func
 
-    class NAME(Server):
-        def __init__(self, args, times):
-            super().__init__(args, times)
+```
 
-            # select slow clients
-            self.set_slow_clients()
-            self.set_clients(clientAVG)
-        def train(self):
-            # server scheduling code of your algorithm
-    ```
-  - Client
-    ```python
-    # clientNAME.py
-    import necessary pkgs
-    from flcore.clients.clientbase import Client
 
-    class clientNAME(Client):
-        def __init__(self, args, id, train_samples, test_samples, **kwargs):
-            super().__init__(args, id, train_samples, test_samples, **kwargs)
-            # add specific initialization
-        
-        def train(self):
-            # client training code of your algorithm
-    ```
-  
-- **New Model**: To add a new model, simply include it in `./system/flcore/trainmodel/models.py`.
-  
-- **New Optimizer**: If you need a new optimizer for training, add it to `./system/flcore/optimizers/fedoptimizer.py`.
-  
-- **New Benchmark Platform or Library**: Our framework is flexible, allowing users to build custom platforms or libraries for specific applications, such as [FL-IoT](https://github.com/TsingZ0/FL-IoT) and [HtFLlib](https://github.com/TsingZ0/HtFLlib).
+* **New Algorithm**: To add a new algorithm, extend the base classes **Server** and **Client**, which are defined in `./system/flcore/servers/serverbase.py` and `./system/flcore/clients/clientbase.py`, respectively.
+* Server
+```python
+# serverNAME.py
+import necessary pkgs
+from flcore.clients.clientNAME import clientNAME
+from flcore.servers.serverbase import Server
 
+class NAME(Server):
+    def __init__(self, args, times):
+        super().__init__(args, times)
+
+        # select slow clients
+        self.set_slow_clients()
+        self.set_clients(clientAVG)
+    def train(self):
+        # server scheduling code of your algorithm
+
+```
+
+
+* Client
+```python
+# clientNAME.py
+import necessary pkgs
+from flcore.clients.clientbase import Client
+
+class clientNAME(Client):
+    def __init__(self, args, id, train_samples, test_samples, **kwargs):
+        super().__init__(args, id, train_samples, test_samples, **kwargs)
+        # add specific initialization
+
+    def train(self):
+        # client training code of your algorithm
+
+```
+
+
+
+
+* **New Model**: To add a new model, simply include it in `./system/flcore/trainmodel/models.py`.
+* **New Optimizer**: If you need a new optimizer for training, add it to `./system/flcore/optimizers/fedoptimizer.py`.
+* **New Benchmark Platform or Library**: Our framework is flexible, allowing users to build custom platforms or libraries for specific applications, such as [FL-IoT](https://github.com/TsingZ0/FL-IoT) and [HtFLlib](https://github.com/TsingZ0/HtFLlib).
 
 ## Privacy Evaluation
 
-You can use the following privacy evaluation methods to assess the privacy-preserving capabilities of tFL/pFL algorithms in PFLlib. Please refer to `./system/flcore/servers/serveravg.py` for an example. Note that most of these evaluations are not typically considered in the original papers. _We encourage you to add more attacks and metrics for privacy evaluation._ 
+You can use the following privacy evaluation methods to assess the privacy-preserving capabilities of tFL/pFL algorithms in PFLlib. Please refer to `./system/flcore/servers/serveravg.py` for an example. Note that most of these evaluations are not typically considered in the original papers. *We encourage you to add more attacks and metrics for privacy evaluation.*
 
 ### Currently supported attacks:
-- [DLG (Deep Leakage from Gradients)](https://www.ijcai.org/proceedings/2022/0324.pdf) attack
+
+* [DLG (Deep Leakage from Gradients)](https://www.ijcai.org/proceedings/2022/0324.pdf) attack
 
 ### Currently supported metrics:
-- **PSNR (Peak Signal-to-Noise Ratio)**: an objective metric for image evaluation, defined as the logarithm of the ratio of the squared maximum value of RGB image fluctuations to the Mean Squared Error (MSE) between two images. A lower PSNR score indicates better privacy-preserving capabilities.
 
+* **PSNR (Peak Signal-to-Noise Ratio)**: an objective metric for image evaluation, defined as the logarithm of the ratio of the squared maximum value of RGB image fluctuations to the Mean Squared Error (MSE) between two images. A lower PSNR score indicates better privacy-preserving capabilities.
 
 ## Systematical research supprot
 
 To simulate Federated Learning (FL) under practical conditions, such as **client dropout**, **slow trainers**, **slow senders**, and **network TTL (Time-To-Live)**, you can adjust the following parameters:
 
-- `-cdr`: Dropout rate for clients. Clients are randomly dropped at each training round based on this rate.
-- `-tsr` and `-ssr`: Slow trainer and slow sender rates, respectively. These parameters define the proportion of clients that will behave as slow trainers or slow senders. Once a client is selected as a "slow trainer" or "slow sender," it will consistently train/send slower than other clients.
-- `-tth`: Threshold for network TTL in milliseconds.
+* `-cdr`: Dropout rate for clients. Clients are randomly dropped at each training round based on this rate.
+* `-tsr` and `-ssr`: Slow trainer and slow sender rates, respectively. These parameters define the proportion of clients that will behave as slow trainers or slow senders. Once a client is selected as a "slow trainer" or "slow sender," it will consistently train/send slower than other clients.
+* `-tth`: Threshold for network TTL in milliseconds.
 
-Thanks to [@Stonesjtu](https://github.com/Stonesjtu/pytorch_memlab/blob/d590c489236ee25d157ff60ecd18433e8f9acbe3/pytorch_memlab/mem_reporter.py#L185), this library can also record the **GPU memory usage** for the model. 
+Thanks to [@Stonesjtu](https://github.com/Stonesjtu/pytorch_memlab/blob/d590c489236ee25d157ff60ecd18433e8f9acbe3/pytorch_memlab/mem_reporter.py#L185), this library can also record the **GPU memory usage** for the model.
 
 ## Experimental Results
 
 If you're interested in **experimental results (e.g., accuracy)** for the algorithms mentioned above, you can find results in our accepted FL papers, which also utilize this library. These papers include:
 
-- [FedALA](https://github.com/TsingZ0/FedALA)
-- [FedCP](https://github.com/TsingZ0/FedCP)
-- [GPFL](https://github.com/TsingZ0/GPFL)
-- [DBE](https://github.com/TsingZ0/DBE)
+* [FedALA](https://github.com/TsingZ0/FedALA)
+* [FedCP](https://github.com/TsingZ0/FedCP)
+* [GPFL](https://github.com/TsingZ0/GPFL)
+* [DBE](https://github.com/TsingZ0/DBE)
 
 Please note that while these results were based on this library, **reproducing the exact results may be challenging** as some settings might have changed in response to community feedback. For example, in earlier versions, we set `shuffle=False` in `clientbase.py`.
 
@@ -470,6 +495,11 @@ Here are the relevant papers for your reference:
   author={Jianqing Zhang and Yang Hua and Jian Cao and Hao Wang and Tao Song and Zhengui XUE and Ruhui Ma and Haibing Guan},
   booktitle={Thirty-seventh Conference on Neural Information Processing Systems},
   year={2023},
-  url={https://openreview.net/forum?id=nO5i1XdUS0}
+  url={[https://openreview.net/forum?id=nO5i1XdUS0](https://openreview.net/forum?id=nO5i1XdUS0)}
 }
+
+```
+
+```
+
 ```

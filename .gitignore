@@ -7,20 +7,17 @@
 *.zip
 *.h5
 *.npz
-dataset/MNIST/rawdata/
-dataset/MNIST/test/
-dataset/MNIST/train/
-dataset/MNIST/train_mal/
+# Mantemos o train_mal ignorado caso seja lixo de teste de envenenamento
+dataset/MNIST/train_mal/ 
 
-# Cache do Python (as pastas __pycache__ que apareceram no seu tree)
+# Cache do Python
 __pycache__/
 *.pyc
 
-
-# Ignorar os datasets gerados pelo LEAF (Resolve o problema de arquivos gigantes)
+# Ignorar os datasets gerados pelo LEAF
 dataset/utils/LEAF/data/
 
-# Ignorar dados do Cifar10 (Seguindo o mesmo padrão do MNIST)
+# Ignorar dados do Cifar10 (MUITO PESADOS PARA O GITHUB)
 dataset/Cifar10/rawdata/
 dataset/Cifar10/test/
 dataset/Cifar10/train/

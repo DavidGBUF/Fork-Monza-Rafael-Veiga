@@ -1,0 +1,31 @@
+# Core scientific computing
+numpy<2
+pandas
+scikit-learn
+scipy
+ujson
+h5py
+
+# Visualization
+seaborn
+matplotlib
+
+# Utilities
+click
+calmsize
+memory-profiler
+portalocker
+tqdm
+
+# PyTorch ecosystem
+torch>=2.0.1
+torchaudio>=2.0.2
+torchtext
+torchvision>=0.15.2
+
+# Advanced ML
+cvxpy
+higher
+diffusers
+accelerate
+transformers
