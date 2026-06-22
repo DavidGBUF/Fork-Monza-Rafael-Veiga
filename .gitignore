@@ -12,8 +12,9 @@
 !dataset/MNIST/train/*.npz
 !dataset/MNIST/test/*.npz
 
-# Mantemos o train_mal ignorado caso seja lixo de teste de envenenamento
+# Ignorar o restante do MNIST (lixo e dados brutos)
 dataset/MNIST/train_mal/ 
+dataset/MNIST/rawdata/
 
 # Cache do Python
 __pycache__/
