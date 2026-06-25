@@ -137,21 +137,34 @@ class pFedMe(Server):
         self.print_(test_acc, train_acc, train_loss)
 
     def save_results(self):
-        algo = self.dataset + "_" + self.algorithm
+        exp_name = self._build_experiment_name()
         result_path = "../results/"
         if not os.path.exists(result_path):
             os.makedirs(result_path)
 
-        # if (len(self.rs_test_acc) & len(self.rs_train_acc) & len(self.rs_train_loss)):
-        #     algo1 = algo + "_" + self.goal + "_" + str(self.times)
-        #     with h5py.File(result_path + "{}.h5".format(algo1), 'w') as hf:
-        #         hf.create_dataset('rs_test_acc', data=self.rs_test_acc)
-        #         hf.create_dataset('rs_train_acc', data=self.rs_train_acc)
-        #         hf.create_dataset('rs_train_loss', data=self.rs_train_loss)
-
         if (len(self.rs_test_acc_per)):
-            algo2 = algo + "_" + self.goal + "_" + str(self.times)
-            with h5py.File(result_path + "{}.h5".format(algo2), 'w') as hf:
+            file_path = os.path.join(result_path, f"{exp_name}.h5")
+            print("File path: " + file_path)
+
+            with h5py.File(file_path, 'w') as hf:
                 hf.create_dataset('rs_test_acc', data=self.rs_test_acc_per)
                 hf.create_dataset('rs_train_acc', data=self.rs_train_acc_per)
                 hf.create_dataset('rs_train_loss', data=self.rs_train_loss_per)
+                hf.create_dataset('rs_round_time', data=self.Budget)
+
+                # Save experiment configuration as HDF5 attributes
+                hf.attrs['dataset'] = self.dataset
+                hf.attrs['algorithm'] = self.algorithm
+                hf.attrs['model'] = getattr(self.args, 'model_str', 'unknown')
+                hf.attrs['num_clients'] = self.num_clients
+                hf.attrs['n_client_malicious'] = self.n_client_malicious
+                hf.attrs['cluster_comparation'] = self.cc
+                hf.attrs['rate_client_fake'] = self.rate_client_fake
+                hf.attrs['attack'] = getattr(self.args, 'atack', 'none')
+                hf.attrs['global_rounds'] = self.global_rounds
+                hf.attrs['local_epochs'] = self.local_epochs
+                hf.attrs['learning_rate'] = self.learning_rate
+                hf.attrs['batch_size'] = self.batch_size
+                hf.attrs['join_ratio'] = self.join_ratio
+                hf.attrs['goal'] = self.goal
+                hf.attrs['run_id'] = getattr(self.args, 'run_id', '')

@@ -73,6 +73,7 @@ def run(args):
     time_list = []
     reporter = MemReporter()
     model_str = args.model
+    args.model_str = model_str
 
     for i in range(args.prev, args.times):
         print(f"\n============= Running time: {i}th =============")
@@ -379,10 +380,7 @@ def run(args):
     
 
     # Global average
-    a = str(args.cluster_comparation)
-    b = str(args.rate_client_fake *100)
-    c = str(args.n_client_malicious)
-    average_data(dataset=args.dataset, algorithm=args.algorithm, goal=args.goal, times=args.times, cc=a, rate_fake=b,nmal=c)
+    average_data(args=args, times=args.times)
 
     print("All done!")
 
@@ -511,6 +509,7 @@ if __name__ == "__main__":
     parser.add_argument('-rfake', '--rate_client_fake', type = int, default=1) # de 0 a 1
     parser.add_argument('-cc', '--cluster_comparation', type = int, default=0) # 0 score com modelo global, 1 score com comparação entre clientes, 2 comparação entre clientes e remove todo o cluster , 3 comparação entre clientes com pontuação, 4 entropia do modelo 5 sem nada
     args = parser.parse_args()
+    args.run_id = time.strftime("%Y%m%d_%H%M%S")
 
     os.environ["CUDA_VISIBLE_DEVICES"] = args.device_id
 

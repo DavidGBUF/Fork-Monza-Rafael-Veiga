@@ -5,6 +5,7 @@ import h5py
 import copy
 import time
 import random
+import csv
 from utils.data_utils import read_client_data
 from utils.dlg import DLG
 from flcore.clients.clientmaliciousavg import ClientMaliciousAVG
@@ -364,11 +365,51 @@ class Server(object):
         for server_param, client_param in zip(self.global_model.parameters(), client_model.parameters()):
             server_param.data += client_param.data.clone() * w
 
+    def _build_experiment_name(self):
+        """Builds a descriptive, unique experiment name from the configuration."""
+        model_str = getattr(self.args, 'model_str', 'unknown')
+        atk = getattr(self.args, 'atack', 'none')
+        run_id = getattr(self.args, 'run_id', '')
+
+        name = (
+            f"{self.dataset}_{self.algorithm}"
+            f"_cc{self.cc}"
+            f"_nmal{self.n_client_malicious}"
+            f"_rfake{self.rate_client_fake}"
+            f"_atk-{atk}"
+            f"_m-{model_str}"
+            f"_nc{self.num_clients}"
+            f"_gr{self.global_rounds}"
+            f"_le{self.local_epochs}"
+            f"_lr{self.learning_rate}"
+            f"_{self.goal}"
+            f"_t{self.times}"
+            f"_{run_id}"
+        )
+        return name
+
+    def _save_metrics_row(self, test_acc, test_auc, train_loss):
+        """Appends one row of per-round metrics to the CSV file."""
+        if not hasattr(self, '_metrics_csv_path'):
+            result_path = "../results/"
+            if not os.path.exists(result_path):
+                os.makedirs(result_path)
+            exp_name = self._build_experiment_name()
+            self._metrics_csv_path = os.path.join(result_path, f'metrics_{exp_name}.csv')
+            with open(self._metrics_csv_path, mode='w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(['round', 'test_acc', 'test_auc', 'train_loss'])
+
+        with open(self._metrics_csv_path, mode='a', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([self.current_round, f'{test_acc:.6f}', f'{test_auc:.6f}', f'{train_loss:.6f}'])
+
     def save_global_model(self):
         model_path = os.path.join("models", self.dataset)
         if not os.path.exists(model_path):
             os.makedirs(model_path)
-        model_path = os.path.join(model_path, self.algorithm + "_server" + ".pt")
+        run_id = getattr(self.args, 'run_id', '')
+        model_path = os.path.join(model_path, f"{self.algorithm}_{self.goal}_t{self.times}_{run_id}_server.pt")
         torch.save(self.global_model, model_path)
 
     def load_model(self):
@@ -383,21 +424,37 @@ class Server(object):
         return os.path.exists(model_path)
         
     def save_results(self):
-        algo = self.dataset + "_" + self.algorithm + "_" + str(self.cc) + "_" + str((self.rate_client_fake*100)) + "_" + str(self.n_client_malicious)
+        exp_name = self._build_experiment_name()
         result_path = "../results/"
         if not os.path.exists(result_path):
             os.makedirs(result_path)
 
         if (len(self.rs_test_acc)):
-            algo = algo + "_" + self.goal + "_" + str(self.times)
-            file_path = result_path + "{}.h5".format(algo)
+            file_path = os.path.join(result_path, f"{exp_name}.h5")
             print("File path: " + file_path)
 
             with h5py.File(file_path, 'w') as hf:
                 hf.create_dataset('rs_test_acc', data=self.rs_test_acc)
                 hf.create_dataset('rs_test_auc', data=self.rs_test_auc)
                 hf.create_dataset('rs_train_loss', data=self.rs_train_loss)
-                hf.create_dataset('rs_train_time', data=self.Budget)
+                hf.create_dataset('rs_round_time', data=self.Budget)
+
+                # Save experiment configuration as HDF5 attributes
+                hf.attrs['dataset'] = self.dataset
+                hf.attrs['algorithm'] = self.algorithm
+                hf.attrs['model'] = getattr(self.args, 'model_str', 'unknown')
+                hf.attrs['num_clients'] = self.num_clients
+                hf.attrs['n_client_malicious'] = self.n_client_malicious
+                hf.attrs['cluster_comparation'] = self.cc
+                hf.attrs['rate_client_fake'] = self.rate_client_fake
+                hf.attrs['attack'] = getattr(self.args, 'atack', 'none')
+                hf.attrs['global_rounds'] = self.global_rounds
+                hf.attrs['local_epochs'] = self.local_epochs
+                hf.attrs['learning_rate'] = self.learning_rate
+                hf.attrs['batch_size'] = self.batch_size
+                hf.attrs['join_ratio'] = self.join_ratio
+                hf.attrs['goal'] = self.goal
+                hf.attrs['run_id'] = getattr(self.args, 'run_id', '')
 
     def save_item(self, item, item_name):
         if not os.path.exists(self.save_folder_name):
@@ -455,11 +512,16 @@ class Server(object):
             self.rs_test_acc.append(test_acc)
         else:
             acc.append(test_acc)
+
+        self.rs_test_auc.append(test_auc)
         
         if loss == None:
             self.rs_train_loss.append(train_loss)
         else:
             loss.append(train_loss)
+
+        # Save per-round metrics to CSV
+        self._save_metrics_row(test_acc, test_auc, train_loss)
 
         print("Averaged Train Loss: {:.4f}".format(train_loss))
         print("Averaged Test Accuracy: {:.4f}".format(test_acc))

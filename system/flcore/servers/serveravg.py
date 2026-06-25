@@ -12,18 +12,16 @@ class FedAvg(Server):
         super().__init__(args, times)
         self.fpr_frr_results = []
 
-        # Open the CSV file in append mode to save results over time
-        if self.cc ==3:
-            self.csv_filename = 'fpr_frr_results_3.csv'
-        if self.cc ==2:
-            self.csv_filename = 'fpr_frr_results_2.csv'
-        else:
-            self.csv_filename = 'f.csv'
-        # Write headers if the file is empty (first time writing)
+        # Initialize defense CSV with descriptive experiment name
+        result_path = "../results/"
+        if not os.path.exists(result_path):
+            os.makedirs(result_path)
+        exp_name = self._build_experiment_name()
+        self.csv_filename = os.path.join(result_path, f'defense_{exp_name}.csv')
         if not os.path.exists(self.csv_filename):
             with open(self.csv_filename, mode='w', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow(['Round', 'FPR', 'FRR'])
+                writer.writerow(['round', 'FPR', 'FRR', 'num_removed', 'removed_client_ids'])
         # select slow clients
         self.set_slow_clients()
         self.set_clients(clientAVG)
@@ -33,13 +31,16 @@ class FedAvg(Server):
 
         # self.load_model()
         
-    def save_fpr_frr_to_csv(self, round_number, FPR, FRR):
+    def save_fpr_frr_to_csv(self, round_number, FPR, FRR, removed_clients=None):
         """
-        Saves the FPR and FRR results to a CSV file for each round.
+        Saves defense metrics (FPR, FRR, removed clients) to CSV for each round.
         """
+        if removed_clients is None:
+            removed_clients = []
         with open(self.csv_filename, mode='a', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow([round_number, FPR, FRR])
+            removed_ids_str = ';'.join(map(str, removed_clients))
+            writer.writerow([round_number, f'{FPR:.6f}', f'{FRR:.6f}', len(removed_clients), removed_ids_str])
 
     def normalize_entropies(self, client_entropies):
         """Normaliza as entropias para que fiquem no intervalo [0, 1]"""
@@ -282,7 +283,7 @@ class FedAvg(Server):
             if self.cc ==3:
                 FPR, FRR = self.compute_fpr_frr()
             print(f"Round {i}: False Positive Rate = {FPR:.4f}, False Rejection Rate = {FRR:.4f}")
-            self.save_fpr_frr_to_csv(i, FPR, FRR)
+            self.save_fpr_frr_to_csv(i, FPR, FRR, removed_clients=self.removed_clients)
             if self.dlg_eval and i%self.dlg_gap == 0:
                 self.call_dlg(i)
             self.aggregate_parameters()
