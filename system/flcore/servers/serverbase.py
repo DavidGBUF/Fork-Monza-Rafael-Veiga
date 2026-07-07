@@ -1,3 +1,4 @@
+import math
 import torch
 import os
 import numpy as np
@@ -13,7 +14,9 @@ from sklearn.cluster import KMeans
 from collections import Counter
 from sklearn.cluster import AgglomerativeClustering
 import numpy as np
-#from scipy.cluster.hierarchy import dendrogram, linkage
+
+
+# from scipy.cluster.hierarchy import dendrogram, linkage
 class Server(object):
     def __init__(self, args, times):
         # Set up the main attributes
@@ -41,7 +44,6 @@ class Server(object):
         self.auto_break = args.auto_break
         self.cc = args.cluster_comparation
         self.rate_client_fake = args.rate_client_fake
-
 
         self.clients = []
         self.selected_clients = []
@@ -76,26 +78,46 @@ class Server(object):
         self.n_client_malicious = args.n_client_malicious
         self.current_round = -1
         self.cc = args.cluster_comparation
-        self.ids =[]
-       
+        self.ids = []
+
     def set_clients(self, clientObj):
         indexes = list(range(self.num_clients))
-        self.client_quarantine_dict = {indexes: {'quarentena': 0, 'roundsQuarent': 0} for indexes in range(self.num_clients)}
+        self.client_quarantine_dict = {
+            indexes: {"quarentena": 0, "roundsQuarent": 0}
+            for indexes in range(self.num_clients)
+        }
+        self.client_flirt_count = {i: 0 for i in range(self.num_clients)}
         n_malicious = self.n_client_malicious
         self.index_malicious = np.random.choice(indexes, n_malicious, replace=False)
         print(self.index_malicious)
-        for i, train_slow, send_slow in zip(range(self.num_clients), self.train_slow_clients, self.send_slow_clients):
-            train_data = read_client_data(self.dataset, i, is_train=True, few_shot=self.few_shot)
-            test_data = read_client_data(self.dataset, i, is_train=False, few_shot=self.few_shot)
-            
+        for i, train_slow, send_slow in zip(
+            range(self.num_clients), self.train_slow_clients, self.send_slow_clients
+        ):
+            train_data = read_client_data(
+                self.dataset, i, is_train=True, few_shot=self.few_shot
+            )
+            test_data = read_client_data(
+                self.dataset, i, is_train=False, few_shot=self.few_shot
+            )
+
             if i not in self.index_malicious:
-                client = clientObj(self.args, id=i, train_samples=len(train_data), 
-                                test_samples=len(test_data), train_slow=train_slow, 
-                                send_slow=send_slow)
+                client = clientObj(
+                    self.args,
+                    id=i,
+                    train_samples=len(train_data),
+                    test_samples=len(test_data),
+                    train_slow=train_slow,
+                    send_slow=send_slow,
+                )
             elif i in self.index_malicious:
-                client = ClientMaliciousAVG(self.args, id=i, train_samples=len(train_data), 
-                                test_samples=len(test_data), train_slow=train_slow, 
-                                send_slow=send_slow)
+                client = ClientMaliciousAVG(
+                    self.args,
+                    id=i,
+                    train_samples=len(train_data),
+                    test_samples=len(test_data),
+                    train_slow=train_slow,
+                    send_slow=send_slow,
+                )
             self.clients.append(client)
 
     # random select slow clients
@@ -109,57 +131,67 @@ class Server(object):
         return slow_clients
 
     def set_slow_clients(self):
-        self.train_slow_clients = self.select_slow_clients(
-            self.train_slow_rate)
-        self.send_slow_clients = self.select_slow_clients(
-            self.send_slow_rate)
+        self.train_slow_clients = self.select_slow_clients(self.train_slow_rate)
+        self.send_slow_clients = self.select_slow_clients(self.send_slow_rate)
 
     def select_clients(self):
         self.current_round += 1
         if self.random_join_ratio:
-            self.current_num_join_clients = np.random.choice(range(self.num_join_clients, self.num_clients+1), 1, replace=False)[0]
+            self.current_num_join_clients = np.random.choice(
+                range(self.num_join_clients, self.num_clients + 1), 1, replace=False
+            )[0]
         else:
             self.current_num_join_clients = self.num_join_clients
-        quarantined_ids =[]
+        quarantined_ids = []
         for client_id, status in self.client_quarantine_dict.items():
-        # Verifica a condição
-            if status['roundsQuarent'] > 0:
+            # Verifica a condição
+            if status["roundsQuarent"] > 0:
                 quarantined_ids.append(client_id)
         new_num_clients = self.clients.copy()
         for idx in range(len(new_num_clients) - 1, -1, -1):
             if idx in quarantined_ids:
                 del new_num_clients[idx]
         self.current_num_join_clients = int(len(new_num_clients) * self.join_ratio)
-        selected_clients = list(np.random.choice(new_num_clients, self.current_num_join_clients, replace=False))
+        selected_clients = list(
+            np.random.choice(
+                new_num_clients, self.current_num_join_clients, replace=False
+            )
+        )
         print(len(selected_clients))
         return selected_clients
 
     def send_models(self):
-        assert (len(self.clients) > 0)
+        assert len(self.clients) > 0
 
         for client in self.clients:
             start_time = time.time()
-            
+
             client.set_parameters(self.global_model)
 
-            client.send_time_cost['num_rounds'] += 1
-            client.send_time_cost['total_cost'] += 2 * (time.time() - start_time)
+            client.send_time_cost["num_rounds"] += 1
+            client.send_time_cost["total_cost"] += 2 * (time.time() - start_time)
 
     def receive_models(self):
-        assert (len(self.selected_clients) > 0)
+        assert len(self.selected_clients) > 0
 
         active_clients = random.sample(
-            self.selected_clients, int((1-self.client_drop_rate) * self.current_num_join_clients))
+            self.selected_clients,
+            int((1 - self.client_drop_rate) * self.current_num_join_clients),
+        )
 
         self.uploaded_ids = []
         self.uploaded_weights = []
         self.uploaded_models = []
-        self.ids =[]
+        self.ids = []
         tot_samples = 0
         for client in active_clients:
             try:
-                client_time_cost = client.train_time_cost['total_cost'] / client.train_time_cost['num_rounds'] + \
-                        client.send_time_cost['total_cost'] / client.send_time_cost['num_rounds']
+                client_time_cost = (
+                    client.train_time_cost["total_cost"]
+                    / client.train_time_cost["num_rounds"]
+                    + client.send_time_cost["total_cost"]
+                    / client.send_time_cost["num_rounds"]
+                )
             except ZeroDivisionError:
                 client_time_cost = 0
             if client_time_cost <= self.time_threthold:
@@ -168,94 +200,101 @@ class Server(object):
                 self.uploaded_weights.append(client.train_samples)
                 self.uploaded_models.append(client.send_local_model(self.current_round))
                 self.ids.append(client.id)
-                
+
         for i, w in enumerate(self.uploaded_weights):
             self.uploaded_weights[i] = w / tot_samples
 
     def cosine_similarity(self, model1_params, model2_params):
-        #Calculo do cosseno
-        model1_params_flat = np.concatenate([p.detach().cpu().numpy().flatten() for p in model1_params])
-        model2_params_flat = np.concatenate([p.detach().cpu().numpy().flatten() for p in model2_params])
+        # Calculo do cosseno
+        model1_params_flat = np.concatenate(
+            [p.detach().cpu().numpy().flatten() for p in model1_params]
+        )
+        model2_params_flat = np.concatenate(
+            [p.detach().cpu().numpy().flatten() for p in model2_params]
+        )
 
-        
         dot_product = np.dot(model1_params_flat, model2_params_flat)
         norm_model1 = np.linalg.norm(model1_params_flat)
         norm_model2 = np.linalg.norm(model2_params_flat)
-        
+
         similarity = dot_product / (norm_model1 * norm_model2)
         return similarity
 
     def calculate_similarity_with_global_model(self, global_model_params):
-        #Similaridade cosseno com o modelo global 
+        # Similaridade cosseno com o modelo global
         similarities = []
         for idx, client_model in enumerate(self.uploaded_models):
             client_model_params = list(client_model.parameters())  # Parâmetros cliente
-            similarity = self.cosine_similarity(client_model_params, global_model_params)
-            similarities.append((self.ids[idx], similarity)) # Armazenando o ID do e a similaridade
+            similarity = self.cosine_similarity(
+                client_model_params, global_model_params
+            )
+            similarities.append(
+                (self.ids[idx], similarity)
+            )  # Armazenando o ID do e a similaridade
         return similarities
-    def flatten_model_params(self, model):
-        #retorna parametros achatados
-        return torch.cat([p.detach().flatten() for p in model.parameters()])
-    
-    def calcular_gradiente_l2(self, modelo, lambda_l2=0.01):
-        # Sua implementação do cálculo do gradiente L2
-        gradiente_l2 = 0.0
-        for parametro in modelo.parameters():
-            if parametro.grad is not None:
-                gradiente_l2 += torch.sum(parametro ** 2).item()
-        gradiente_l2 = lambda_l2 * gradiente_l2
-        return gradiente_l2
 
-    def calculate_similarity_scores(self):
-        #Calcula a matriz de similaridade de cosseno entre todos os clientes e retorna a matriz + os scores médios de cada cliente.
+    def flatten_model_params(self, model):
+        # retorna parametros achatados
+        return torch.cat([p.detach().flatten() for p in model.parameters()])
+
+    def calcular_norma_l2(self, modelo):
+        soma = 0.0
+        for parametro in modelo.parameters():
+            soma += torch.sum(parametro.data**2).item()
+        return math.sqrt(soma)
+
+    def calcular_norma_l3(self, modelo):
+        soma = 0.0
+        for parametro in modelo.parameters():
+            soma += torch.sum(torch.abs(parametro.data) ** 3).item()
+        return soma ** (1 / 3)
+
+    def calculate_similarity_scores(self, force_cosine=False):
+        # Calcula a matriz de similaridade de cosseno entre todos os clientes e retorna a matriz + os scores médios de cada cliente.
 
         num_clients = len(self.uploaded_models)
-        
-        #Flatten todos os modelos e empilhar em um único tensor
-        all_params = torch.stack([self.flatten_model_params(model) for model in self.uploaded_models])  # shape: [num_clients, num_features]
-        
-        #Normalizar os vetores para calcular cosseno facilmente
+
+        # Flatten todos os modelos e empilhar em um único tensor
+        all_params = torch.stack(
+            [self.flatten_model_params(model) for model in self.uploaded_models]
+        )  # shape: [num_clients, num_features]
+
+        # Normalizar os vetores para calcular cosseno facilmente
         norms = torch.norm(all_params, dim=1, keepdim=True)  # [num_clients, 1]
         normalized_params = all_params / (norms + 1e-10)
-        
-        #Calcular a matriz de similaridade: dot product entre vetores normalizados
-        similarity_matrix = torch.matmul(normalized_params, normalized_params.T)  # shape: [num_clients, num_clients]
-        #for row in similarity_matrix:
-        #    print("  ".join([f"{x:0.6f}" for x in row])) 
-        #Converter para NumPy
+
+        # Calcular a matriz de similaridade: dot product entre vetores normalizados
+        similarity_matrix = torch.matmul(
+            normalized_params, normalized_params.T
+        )  # shape: [num_clients, num_clients]
+        # for row in similarity_matrix:
+        #    print("  ".join([f"{x:0.6f}" for x in row]))
+        # Converter para NumPy
         similarity_matrix_np = similarity_matrix.cpu().numpy()
         desvio_padrao = torch.std(similarity_matrix)
-        grad=[]
-        if desvio_padrao < 0.01:
-    # Inicializar o dicionário para armazenar os gradientes dos clientes
+
+        if desvio_padrao < 0.01 and not force_cosine:
             grad = {}
 
-            # Itera sobre os modelos carregados
             for i, model in enumerate(self.uploaded_models):
-                # Calcula o gradiente L2 para cada modelo
-                gradiente_l2 = self.calcular_gradiente_l2(model, lambda_l2=0.01)
-                
-                # Adiciona o gradiente ao dicionário com o id do cliente
-                grad[self.ids[i]] = gradiente_l2
-                
-                # Exemplo de adicionar esse gradiente à perda do modelo
+                norma_l2 = self.calcular_norma_l2(model)
+                grad[self.ids[i]] = norma_l2
                 try:
-                    print(f"Gradiente L2 calculado para o cliente {self.ids[i]}: {gradiente_l2}")
+                    print(
+                        f"Gradiente L2 calculado para o cliente {self.ids[i]}: {norma_l2}"
+                    )
                 except Exception as e:
-                    print(f"Erro ao imprimir o gradiente para o cliente {self.ids[i]}: {e}")
+                    print(
+                        f"Erro ao imprimir o gradiente para o cliente {self.ids[i]}: {e}"
+                    )
 
-            # Exibe a média dos gradientes
             print(np.mean(list(grad.values())))
 
             return similarity_matrix_np, grad
 
-        #Calcular score médio de cada cliente (excluindo diagonal)
-        #scores = (similarity_matrix_np.sum(axis=1) - 1) / (num_clients - 1)  # média da similaridade com os outros clientes
-        scores= self.calculate_client_scores(similarity_matrix_np)
+        scores = self.calculate_client_scores(similarity_matrix_np)
         return similarity_matrix_np, scores
 
-        
-    
     """
     def calculate_similarity_scores(self):
         #Similaridade entre todos os clientes
@@ -284,59 +323,68 @@ class Server(object):
         
         return similarity_matrix, a
     """
+
     def calculate_client_scores(self, similarity_matrix):
         """
         Calcula um score para cada cliente baseado na matriz de similaridade.
         Score = média da similaridade do cliente com todos os outros clientes.
         """
-          # Matriz de similaridade (NxN)
+        # Matriz de similaridade (NxN)
         num_clients = len(self.uploaded_models)
-        
+
         # Inicializa um dicionário para armazenar os scores
         client_scores = {}
-        
+
         for i in range(num_clients):
             # Exclui a diagonal (similaridade consigo mesmo)
             sum_similarity = np.sum(similarity_matrix[i]) - similarity_matrix[i, i]
-            score = sum_similarity / (num_clients - 1)  # Média das similaridades com os outros clientes
+            score = sum_similarity / (
+                num_clients - 1
+            )  # Média das similaridades com os outros clientes
             client_scores[self.ids[i]] = score
-        
+
         # Opcional: normalizar scores entre 0 e 1
         scores_array = np.array(list(client_scores.values()))
         min_score = np.min(scores_array)
         max_score = np.max(scores_array)
-        
+
         for client_id in client_scores:
-            client_scores[client_id] = (client_scores[client_id] - min_score) / (max_score - min_score + 1e-10)
+            client_scores[client_id] = (client_scores[client_id] - min_score) / (
+                max_score - min_score + 1e-10
+            )
         return client_scores
 
     def perform_clustering(self, similarity_matrix, num_clusters=2):
         # Convertendo a matriz de similaridade em uma matriz de distâncias
-        distance_matrix = 1 - similarity_matrix  # Distância = 1 - Similaridade de Cosseno
+        distance_matrix = (
+            1 - similarity_matrix
+        )  # Distância = 1 - Similaridade de Cosseno
 
         # Aplicando o KMeans
-        #kmeans = KMeans(n_clusters=num_clusters, random_state=42)
-        #kmeans.fit(distance_matrix)
-        
+        # kmeans = KMeans(n_clusters=num_clusters, random_state=42)
+        # kmeans.fit(distance_matrix)
+
         # Atribuindo os clusters aos clientes
-        #clusters = kmeans.labels_
+        # clusters = kmeans.labels_
         agglomerative = AgglomerativeClustering(n_clusters=num_clusters)
-    
-    # Ajustando e atribuindo os clusters
+
+        # Ajustando e atribuindo os clusters
         clusters = agglomerative.fit_predict(distance_matrix)
         return clusters
 
     def calculate_shannon_entropy(self, model_params):
-        # Modelo em lista de array 1D 
-        model_params_flat = np.concatenate([p.detach().cpu().numpy().flatten() for p in model_params])
+        # Modelo em lista de array 1D
+        model_params_flat = np.concatenate(
+            [p.detach().cpu().numpy().flatten() for p in model_params]
+        )
 
-        # probabilidade de distribuiçao 
+        # probabilidade de distribuiçao
         hist, bin_edges = np.histogram(model_params_flat, bins=50, density=True)
 
-        # Normalização suspeita 
+        # Normalização suspeita
         hist = hist / np.sum(hist)
 
-        entropy = -np.sum(hist * np.log2(hist + 1e-10))  #log(0)
+        entropy = -np.sum(hist * np.log2(hist + 1e-10))  # log(0)
         return entropy
 
     def calculate_client_entropies(self):
@@ -351,25 +399,133 @@ class Server(object):
 
         return client_entropies
 
+    def calcular_composite_scores(
+        self, client_scores, normas_l2, normas_l3, client_entropies
+    ):
+        ids = self.ids
+        n = len(ids)
+        if n == 0:
+            return {}, {}, 0, 0
+
+        # 1. Montar dict com valores raw de cada critério
+        raw = {}
+        for cid in ids:
+            raw[cid] = {
+                "cos": client_scores.get(cid, 0.5),
+                "l2": normas_l2.get(cid, 0.0),
+                "l3": normas_l3.get(cid, 0.0),
+                "ent": client_entropies.get(cid, 0.0),
+                "flirt": self.client_flirt_count.get(cid, 0),
+            }
+
+        # 2. Função auxiliar: min-max scaling (se todos iguais, retorna 0.5)
+        def minmax(arr):
+            mn, mx = min(arr), max(arr)
+            if abs(mx - mn) < 1e-10:
+                return [0.5 for _ in arr]
+            return [(x - mn) / (mx - mn) for x in arr]
+
+        # 3. Normalizar cada critério para [0,1], higher=better
+        cos_raw = [raw[c]["cos"] for c in ids]
+        l2_raw = [raw[c]["l2"] for c in ids]
+        l3_raw = [raw[c]["l3"] for c in ids]
+        ent_raw = [raw[c]["ent"] for c in ids]
+        flt_raw = [raw[c]["flirt"] for c in ids]
+
+        # Cosine: maior = melhor (já está em [0,1] aproximadamente)
+        cos_norm = minmax(cos_raw)
+        # L2: menor = melhor → inverter
+        l2_norm = [1 - x for x in minmax(l2_raw)]
+        # L3: menor = melhor → inverter
+        l3_norm = [1 - x for x in minmax(l3_raw)]
+        # Entropia: quanto mais próxima da média, melhor
+        mean_ent = np.mean(ent_raw)
+        max_dev = max(abs(e - mean_ent) for e in ent_raw) + 1e-10
+        # Entropia: quanto mais próxima da média, melhor
+        ent_norm = [1 - abs(e - mean_ent) / max_dev for e in ent_raw]
+        # Flirt: menor = melhor (0 flirt = bom) → inverter
+        flt_norm = [1 - x for x in minmax(flt_raw)]
+
+        # 4. Montar dict de scores normalizados
+        scores = {}
+        for i, cid in enumerate(ids):
+            scores[cid] = {
+                "cos": cos_norm[i],
+                "l2": l2_norm[i],
+                "l3": l3_norm[i],
+                "ent": ent_norm[i],
+                "flirt": flt_norm[i],
+            }
+
+        # 5. Pesos automáticos = inverso do desvio padrão
+        # Critérios com baixo std (clientes homogêneos) ganham mais peso
+        def calc_inv_weight(vals):
+            std = np.std(vals)
+            if std < 0.01:
+                std = 0.01  # piso para evitar pesos extremos
+            return 1.0 / std
+
+        invs = {
+            "cos": calc_inv_weight(cos_norm),
+            "l2": calc_inv_weight(l2_norm),
+            "l3": calc_inv_weight(l3_norm),
+            "entropy": calc_inv_weight(ent_norm),
+            "flirt": calc_inv_weight(flt_norm),
+        }
+        total_inv = sum(invs.values())
+        weights = {k: v / total_inv for k, v in invs.items()}
+
+        # Ajuste 5: Cap de 0.4 por critério para evitar dominação
+        # Ex.: se flirt tem std≈0, peso não ultrapassa 40%
+        MAX_WEIGHT = 0.4
+        for k in weights:
+            if weights[k] > MAX_WEIGHT:
+                weights[k] = MAX_WEIGHT
+        total = sum(weights.values())
+        weights = {k: v / total for k, v in weights.items()}
+
+        # 6. Score composto por cliente
+        composites = {}
+        for cid in ids:
+            s = scores[cid]
+            composites[cid] = (
+                weights["cos"] * s["cos"]
+                + weights["l2"] * s["l2"]
+                + weights["l3"] * s["l3"]
+                + weights["entropy"] * s["ent"]
+                + weights["flirt"] * s["flirt"]
+            )
+
+        # 7. Thresholds dinâmicos baseados na distribuição do composite
+        comp_vals = list(composites.values())
+        mean_c = np.mean(comp_vals)
+        std_c = np.std(comp_vals)
+        T_high = mean_c - 1.0 * std_c
+        T_low = mean_c - 1.5 * std_c
+
+        return composites, weights, T_high, T_low
+
     def aggregate_parameters(self):
-        assert (len(self.uploaded_models) > 0)
+        assert len(self.uploaded_models) > 0
 
         self.global_model = copy.deepcopy(self.uploaded_models[0])
         for param in self.global_model.parameters():
             param.data.zero_()
-            
+
         for w, client_model in zip(self.uploaded_weights, self.uploaded_models):
             self.add_parameters(w, client_model)
 
     def add_parameters(self, w, client_model):
-        for server_param, client_param in zip(self.global_model.parameters(), client_model.parameters()):
+        for server_param, client_param in zip(
+            self.global_model.parameters(), client_model.parameters()
+        ):
             server_param.data += client_param.data.clone() * w
 
     def _build_experiment_name(self):
         """Builds a descriptive, unique experiment name from the configuration."""
-        model_str = getattr(self.args, 'model_str', 'unknown')
-        atk = getattr(self.args, 'atack', 'none')
-        run_id = getattr(self.args, 'run_id', '')
+        model_str = getattr(self.args, "model_str", "unknown")
+        atk = getattr(self.args, "atack", "none")
+        run_id = getattr(self.args, "run_id", "")
 
         name = (
             f"{self.dataset}_{self.algorithm}"
@@ -390,92 +546,107 @@ class Server(object):
 
     def _save_metrics_row(self, test_acc, test_auc, train_loss):
         """Appends one row of per-round metrics to the CSV file."""
-        if not hasattr(self, '_metrics_csv_path'):
+        if not hasattr(self, "_metrics_csv_path"):
             result_path = "../results/"
             if not os.path.exists(result_path):
                 os.makedirs(result_path)
             exp_name = self._build_experiment_name()
-            self._metrics_csv_path = os.path.join(result_path, f'metrics_{exp_name}.csv')
-            with open(self._metrics_csv_path, mode='w', newline='') as f:
+            self._metrics_csv_path = os.path.join(
+                result_path, f"metrics_{exp_name}.csv"
+            )
+            with open(self._metrics_csv_path, mode="w", newline="") as f:
                 writer = csv.writer(f)
-                writer.writerow(['round', 'test_acc', 'test_auc', 'train_loss'])
+                writer.writerow(["round", "test_acc", "test_auc", "train_loss"])
 
-        with open(self._metrics_csv_path, mode='a', newline='') as f:
+        with open(self._metrics_csv_path, mode="a", newline="") as f:
             writer = csv.writer(f)
-            writer.writerow([self.current_round, f'{test_acc:.6f}', f'{test_auc:.6f}', f'{train_loss:.6f}'])
+            writer.writerow(
+                [
+                    self.current_round,
+                    f"{test_acc:.6f}",
+                    f"{test_auc:.6f}",
+                    f"{train_loss:.6f}",
+                ]
+            )
 
     def save_global_model(self):
         model_path = os.path.join("models", self.dataset)
         if not os.path.exists(model_path):
             os.makedirs(model_path)
-        run_id = getattr(self.args, 'run_id', '')
-        model_path = os.path.join(model_path, f"{self.algorithm}_{self.goal}_t{self.times}_{run_id}_server.pt")
+        run_id = getattr(self.args, "run_id", "")
+        model_path = os.path.join(
+            model_path, f"{self.algorithm}_{self.goal}_t{self.times}_{run_id}_server.pt"
+        )
         torch.save(self.global_model, model_path)
 
     def load_model(self):
         model_path = os.path.join("models", self.dataset)
         model_path = os.path.join(model_path, self.algorithm + "_server" + ".pt")
-        assert (os.path.exists(model_path))
+        assert os.path.exists(model_path)
         self.global_model = torch.load(model_path)
 
     def model_exists(self):
         model_path = os.path.join("models", self.dataset)
         model_path = os.path.join(model_path, self.algorithm + "_server" + ".pt")
         return os.path.exists(model_path)
-        
+
     def save_results(self):
         exp_name = self._build_experiment_name()
         result_path = "../results/"
         if not os.path.exists(result_path):
             os.makedirs(result_path)
 
-        if (len(self.rs_test_acc)):
+        if len(self.rs_test_acc):
             file_path = os.path.join(result_path, f"{exp_name}.h5")
             print("File path: " + file_path)
 
-            with h5py.File(file_path, 'w') as hf:
-                hf.create_dataset('rs_test_acc', data=self.rs_test_acc)
-                hf.create_dataset('rs_test_auc', data=self.rs_test_auc)
-                hf.create_dataset('rs_train_loss', data=self.rs_train_loss)
-                hf.create_dataset('rs_round_time', data=self.Budget)
+            with h5py.File(file_path, "w") as hf:
+                hf.create_dataset("rs_test_acc", data=self.rs_test_acc)
+                hf.create_dataset("rs_test_auc", data=self.rs_test_auc)
+                hf.create_dataset("rs_train_loss", data=self.rs_train_loss)
+                hf.create_dataset("rs_round_time", data=self.Budget)
 
                 # Save experiment configuration as HDF5 attributes
-                hf.attrs['dataset'] = self.dataset
-                hf.attrs['algorithm'] = self.algorithm
-                hf.attrs['model'] = getattr(self.args, 'model_str', 'unknown')
-                hf.attrs['num_clients'] = self.num_clients
-                hf.attrs['n_client_malicious'] = self.n_client_malicious
-                hf.attrs['cluster_comparation'] = self.cc
-                hf.attrs['rate_client_fake'] = self.rate_client_fake
-                hf.attrs['attack'] = getattr(self.args, 'atack', 'none')
-                hf.attrs['global_rounds'] = self.global_rounds
-                hf.attrs['local_epochs'] = self.local_epochs
-                hf.attrs['learning_rate'] = self.learning_rate
-                hf.attrs['batch_size'] = self.batch_size
-                hf.attrs['join_ratio'] = self.join_ratio
-                hf.attrs['goal'] = self.goal
-                hf.attrs['run_id'] = getattr(self.args, 'run_id', '')
+                hf.attrs["dataset"] = self.dataset
+                hf.attrs["algorithm"] = self.algorithm
+                hf.attrs["model"] = getattr(self.args, "model_str", "unknown")
+                hf.attrs["num_clients"] = self.num_clients
+                hf.attrs["n_client_malicious"] = self.n_client_malicious
+                hf.attrs["cluster_comparation"] = self.cc
+                hf.attrs["rate_client_fake"] = self.rate_client_fake
+                hf.attrs["attack"] = getattr(self.args, "atack", "none")
+                hf.attrs["global_rounds"] = self.global_rounds
+                hf.attrs["local_epochs"] = self.local_epochs
+                hf.attrs["learning_rate"] = self.learning_rate
+                hf.attrs["batch_size"] = self.batch_size
+                hf.attrs["join_ratio"] = self.join_ratio
+                hf.attrs["goal"] = self.goal
+                hf.attrs["run_id"] = getattr(self.args, "run_id", "")
 
     def save_item(self, item, item_name):
         if not os.path.exists(self.save_folder_name):
             os.makedirs(self.save_folder_name)
-        torch.save(item, os.path.join(self.save_folder_name, "server_" + item_name + ".pt"))
+        torch.save(
+            item, os.path.join(self.save_folder_name, "server_" + item_name + ".pt")
+        )
 
     def load_item(self, item_name):
-        return torch.load(os.path.join(self.save_folder_name, "server_" + item_name + ".pt"))
+        return torch.load(
+            os.path.join(self.save_folder_name, "server_" + item_name + ".pt")
+        )
 
     def test_metrics(self):
         if self.eval_new_clients and self.num_new_clients > 0:
             self.fine_tuning_new_clients()
             return self.test_metrics_new_clients()
-        
+
         num_samples = []
         tot_correct = []
         tot_auc = []
         for c in self.clients:
             ct, ns, auc = c.test_metrics()
-            tot_correct.append(ct*1.0)
-            tot_auc.append(auc*ns)
+            tot_correct.append(ct * 1.0)
+            tot_auc.append(auc * ns)
             num_samples.append(ns)
 
         ids = [c.id for c in self.clients]
@@ -485,13 +656,13 @@ class Server(object):
     def train_metrics(self):
         if self.eval_new_clients and self.num_new_clients > 0:
             return [0], [1], [0]
-        
+
         num_samples = []
         losses = []
         for c in self.clients:
             cl, ns = c.train_metrics()
             num_samples.append(ns)
-            losses.append(cl*1.0)
+            losses.append(cl * 1.0)
 
         ids = [c.id for c in self.clients]
 
@@ -502,19 +673,19 @@ class Server(object):
         stats = self.test_metrics()
         stats_train = self.train_metrics()
 
-        test_acc = sum(stats[2])*1.0 / sum(stats[1])
-        test_auc = sum(stats[3])*1.0 / sum(stats[1])
-        train_loss = sum(stats_train[2])*1.0 / sum(stats_train[1])
+        test_acc = sum(stats[2]) * 1.0 / sum(stats[1])
+        test_auc = sum(stats[3]) * 1.0 / sum(stats[1])
+        train_loss = sum(stats_train[2]) * 1.0 / sum(stats_train[1])
         accs = [a / n for a, n in zip(stats[2], stats[1])]
         aucs = [a / n for a, n in zip(stats[3], stats[1])]
-        
+
         if acc == None:
             self.rs_test_acc.append(test_acc)
         else:
             acc.append(test_acc)
 
         self.rs_test_auc.append(test_auc)
-        
+
         if loss == None:
             self.rs_train_loss.append(train_loss)
         else:
@@ -538,14 +709,20 @@ class Server(object):
     def check_done(self, acc_lss, top_cnt=None, div_value=None):
         for acc_ls in acc_lss:
             if top_cnt is not None and div_value is not None:
-                find_top = len(acc_ls) - torch.topk(torch.tensor(acc_ls), 1).indices[0] > top_cnt
+                find_top = (
+                    len(acc_ls) - torch.topk(torch.tensor(acc_ls), 1).indices[0]
+                    > top_cnt
+                )
                 find_div = len(acc_ls) > 1 and np.std(acc_ls[-top_cnt:]) < div_value
                 if find_top and find_div:
                     pass
                 else:
                     return False
             elif top_cnt is not None:
-                find_top = len(acc_ls) - torch.topk(torch.tensor(acc_ls), 1).indices[0] > top_cnt
+                find_top = (
+                    len(acc_ls) - torch.topk(torch.tensor(acc_ls), 1).indices[0]
+                    > top_cnt
+                )
                 if find_top:
                     pass
                 else:
@@ -567,7 +744,9 @@ class Server(object):
         for cid, client_model in zip(self.uploaded_ids, self.uploaded_models):
             client_model.eval()
             origin_grad = []
-            for gp, pp in zip(self.global_model.parameters(), client_model.parameters()):
+            for gp, pp in zip(
+                self.global_model.parameters(), client_model.parameters()
+            ):
                 origin_grad.append(gp.data - pp.data)
 
             target_inputs = []
@@ -589,26 +768,32 @@ class Server(object):
             if d is not None:
                 psnr_val += d
                 cnt += 1
-            
+
             # items.append((client_model, origin_grad, target_inputs))
-                
+
         if cnt > 0:
-            print('PSNR value is {:.2f} dB'.format(psnr_val / cnt))
+            print("PSNR value is {:.2f} dB".format(psnr_val / cnt))
         else:
-            print('PSNR error')
+            print("PSNR error")
 
         # self.save_item(items, f'DLG_{R}')
 
     def set_new_clients(self, clientObj):
         for i in range(self.num_clients, self.num_clients + self.num_new_clients):
-            train_data = read_client_data(self.dataset, i, is_train=True, few_shot=self.few_shot)
-            test_data = read_client_data(self.dataset, i, is_train=False, few_shot=self.few_shot)
-            client = clientObj(self.args, 
-                            id=i, 
-                            train_samples=len(train_data), 
-                            test_samples=len(test_data), 
-                            train_slow=False, 
-                            send_slow=False)
+            train_data = read_client_data(
+                self.dataset, i, is_train=True, few_shot=self.few_shot
+            )
+            test_data = read_client_data(
+                self.dataset, i, is_train=False, few_shot=self.few_shot
+            )
+            client = clientObj(
+                self.args,
+                id=i,
+                train_samples=len(train_data),
+                test_samples=len(test_data),
+                train_slow=False,
+                send_slow=False,
+            )
             self.new_clients.append(client)
 
     # fine-tuning on new clients
@@ -639,8 +824,8 @@ class Server(object):
         tot_auc = []
         for c in self.new_clients:
             ct, ns, auc = c.test_metrics()
-            tot_correct.append(ct*1.0)
-            tot_auc.append(auc*ns)
+            tot_correct.append(ct * 1.0)
+            tot_auc.append(auc * ns)
             num_samples.append(ns)
 
         ids = [c.id for c in self.new_clients]
